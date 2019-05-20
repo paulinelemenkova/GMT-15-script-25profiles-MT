@@ -1,6 +1,6 @@
 #!/bin/sh
 # Purpose: Geographic location of the cross-sectonal profiles of the Mariana Trench
-# GMT modules: grdcut, grdinfo, grdcontour, psbasemap, psxy, pstext, logo
+# GMT modules: grdcut, grdinfo, grdcontour, psbasemap, psxy, pstext, logo, psconvert
 # Step-1. Generate a file
 ps=GMT_JB_profiles_MT.ps
 # Step-2. Cut off the grid
@@ -82,3 +82,5 @@ EOF
 gmt pstext -R0/10/0/15 -JX10/10 -X0.5c -Y0.0c -F+f7p,Helvetica,dimgray+jLB -N -O >> $ps << FIN
 9.5 0.5 Standard paralles at 10\232 and 20\232 N
 FIN
+# Step-12. Convert to image file using GhostScript (portrait orientation, 720 dpi)
+gmt psconvert GMT_JB_profiles_MT.ps -A0.2c -E720 -Tj -P -Z

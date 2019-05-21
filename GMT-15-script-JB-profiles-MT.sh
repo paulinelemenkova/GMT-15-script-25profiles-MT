@@ -1,30 +1,37 @@
 #!/bin/sh
 # Purpose: Geographic location of the cross-sectonal profiles of the Mariana Trench
-# GMT modules: grdcut, grdinfo, grdcontour, psbasemap, psxy, pstext, logo, psconvert
+# GMT modules: gmtset, gmtdefaults, grdcut, grdinfo, grdcontour, psbasemap, psxy, pstext, logo, psconvert
 # Step-1. Generate a file
 ps=GMT_JB_profiles_MT.ps
-# Step-2. Cut off the grid
+# Step-2. GMT set up
+gmt set FORMAT_GEO_MAP=dddF \
+    MAP_FRAME_PEN=dimgray \
+    MAP_FRAME_WIDTH=0.1c \
+    MAP_TITLE_OFFSET=0.8c \
+    MAP_ANNOT_OFFSET=0.1c \
+    MAP_TICK_PEN_PRIMARY=thinner,dimgray \
+    MAP_GRID_PEN_PRIMARY=thin,dimgray \
+    MAP_GRID_PEN_SECONDARY=thinnest,dimgray \
+    FONT_TITLE=12p,Palatino-Roman,black \
+    FONT_ANNOT_PRIMARY=7p,Helvetica,darkblue \
+    FONT_LABEL=7p,Helvetica,dimgray \
+    FONT_LOGO=8p,Palatino-Roman,black
+# Step-3. Overwrite defaults of GMT
+gmtdefaults -D > .gmtdefaults
+# Step-4. Cut off the grid
 gmt grdcut earth_relief_05m.grd -R120/160/0/35 -Gmt_relief.nc -V
 gmt grdinfo @mt_relief.nc
-# Step-3. Add contour
+# Step-5. Add contour
 gmt grdcontour @mt_relief.nc -R120/160/0/35 -JB140/15/10/20/6.0i \
     -C1000 -A2000+f7p,Helvetica,dimgray -S4 -T+d15p/3p \
 	--MAP_GRID_PEN_PRIMARY=thinnest \
 	-P -K > $ps
-# Step-4. Basemap: title, ticks
+# Step-6. Basemap: title, ticks
 gmt psbasemap -R -J \
-	--FORMAT_GEO_MAP=dddF \
-	--MAP_FRAME_PEN=dimgray \
-	--MAP_FRAME_WIDTH=0.08c \
-	--MAP_TICK_PEN_PRIMARY=thinner,dimgray \
-    --MAP_TITLE_OFFSET=25p \
-	--FONT_TITLE=14p,Palatino-Roman,black \
-    --FONT_ANNOT_PRIMARY=7p,Helvetica,darkblue \
-    --FONT_LABEL=7p,Helvetica,black \
 	-Bxg4f2a5 -Byg4f2a4 \
 	-B+t"Geographic location of the cross-sectonal profiles of the Mariana Trench" \
     -UBL/-15p/-40p  -O -K >> $ps
-# Step-5. Add profiles
+# Step-7. Add profiles
 gmt psxy -R -J -Sv0.15i+bc+ec -Gyellow -W0.5p -O -K << EOF >> $ps
 140.0 21.5 45 3c
 140.3 21.2 40 3c
@@ -52,35 +59,35 @@ gmt psxy -R -J -Sv0.15i+bc+ec -Gyellow -W0.5p -O -K << EOF >> $ps
 140.2 14.7 -40 3c
 140.0 14.5 -45 3c
 EOF
-# Step-6. Add scale, directional rose
+# Step-8. Add scale, directional rose
 gmt psbasemap -R -J \
     --FONT=8p,Palatino-Roman,dimgray \
     -Tdg125.2/31+w0.5c+f2+l \
     -Lx5.1i/-0.5i+c50+w1000k+l"Conic equal-area Albers projection"+f \
     -O -K >> $ps
-# Step-7. Add subtitle
+# Step-9. Add subtitle
 gmt pstext -R -J -X0.0c -Y0.0c -N -O -K \
     -F+f10p,Palatino-Roman,black+jLB >> $ps << EOF
 124.0 38.0 Bathymetry: ETOPO1 Global Relief Model 1 arc min resolution grid
 EOF
-# Step-8. Study area
+# Step-10. Study area
 gmt psbasemap -R -J \
     -D138/6/153/28r -F+pthin,red \
     -O -K >> $ps
-# Step-9. Study area label annotation
+# Step-11. Study area label annotation
 gmt psxy -R -J -Wthick -O -K \
 -Sqn1:+f10p,Times-Roman,red+l"Study Area"+c4p+gwhite+pthick,red+o << EOF >> $ps
 138 7.0
 151 6.8
 EOF
-# Step-10. Add logo
+# Step-12. Add logo
 gmt logo -R -J -Dx6.5/-2.2+o0.1i/0.1i+w2c -O -K >> $ps
-# Step-11. Add caption
+# Step-13. Add caption
 gmt pstext -R0/10/0/15 -JX10/10 -X1.0c -Y-2.5c -F+f7p,Helvetica,dimgray+jLB -N -O -K >> $ps << EOF
 10.0 1.0 Scale at 15\232N, km
 EOF
 gmt pstext -R0/10/0/15 -JX10/10 -X0.5c -Y0.0c -F+f7p,Helvetica,dimgray+jLB -N -O >> $ps << FIN
 9.5 0.5 Standard paralles at 10\232 and 20\232 N
 FIN
-# Step-12. Convert to image file using GhostScript (portrait orientation, 720 dpi)
+# Step-14. Convert to image file using GhostScript (portrait orientation, 720 dpi)
 gmt psconvert GMT_JB_profiles_MT.ps -A0.2c -E720 -Tj -P -Z
